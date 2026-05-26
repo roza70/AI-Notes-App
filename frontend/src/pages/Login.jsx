@@ -4,10 +4,16 @@ import Navbar from '../components/navbar.jsx'
 import { apiFetch } from '../utils/api.js'
 import { useToast } from '../context/ToastContext.jsx'
 
-const Signup = () => {
+const Login = () => {
   const navigate = useNavigate()
   const { showToast } = useToast()
-  const [name, setName] = React.useState('')
+
+  React.useEffect(() => {
+    if (localStorage.getItem('token')) {
+      navigate('/home', { replace: true })
+    }
+  }, [navigate])
+
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
   const [error, setError] = React.useState('')
@@ -19,14 +25,14 @@ const Signup = () => {
     setLoading(true)
 
     try {
-      const res = await apiFetch('/api/auth/register', {
+      const res = await apiFetch('/api/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ email, password }),
       })
       const data = await res.json()
 
       if (!res.ok) {
-        const errMsg = data.message || 'Registration failed';
+        const errMsg = data.message || 'Login failed';
         setError(errMsg)
         showToast(errMsg, 'error')
         return
@@ -34,7 +40,7 @@ const Signup = () => {
 
       localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
-      showToast('Registration successful! Welcome.', 'success')
+      showToast('Logged in successfully!', 'success')
       navigate('/home', { replace: true })
     } catch {
       setError('Could not reach the server. Is the backend running?')
@@ -49,23 +55,11 @@ const Signup = () => {
       <Navbar />
       <div className="flex justify-center items-center py-12 px-4">
       <div className="border shadow p-6 w-80 bg-white">
-        <h2 className="text-xl font-bold mb-4">Sign Up</h2>
+        <h2 className="text-xl font-bold mb-4">Login</h2>
         {error && (
           <p className="mb-3 text-sm text-red-600 bg-red-50 p-2 rounded">{error}</p>
         )}
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700">Name</label>
-            <input
-              type="text"
-              className="w-full px-3 py-2 border"
-              placeholder="Enter Username"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              disabled={loading}
-            />
-          </div>
           <div className="mb-4">
             <label className="block text-gray-700" htmlFor="email">
               Email
@@ -96,21 +90,19 @@ const Signup = () => {
               disabled={loading}
             />
           </div>
-          <div className="mb-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition duration-300 disabled:opacity-60"
-            >
-              {loading ? 'Signing up...' : 'Signup'}
-            </button>
-            <p className="text-center mt-4">
-              Already have an account?{' '}
-              <Link to="/login" className="text-teal-600 hover:underline">
-                Login
-              </Link>
-            </p>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition duration-300 disabled:opacity-60"
+          >
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+          <p className="text-center mt-4">
+            Don&apos;t have an account?{' '}
+            <Link to="/signup" className="text-teal-600 hover:underline">
+              Sign up
+            </Link>
+          </p>
         </form>
       </div>
       </div>
@@ -118,4 +110,4 @@ const Signup = () => {
   )
 }
 
-export default Signup
+export default Login
