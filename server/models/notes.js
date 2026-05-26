@@ -11,6 +11,7 @@ const noteSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true },
     description: { type: String, default: "" },
     color: { type: String, default: "white" },
+    summary: { type: String, default: "" }, // ← AI summary stored here
   },
   { timestamps: true }
 );

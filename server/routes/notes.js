@@ -1,4 +1,5 @@
 import express from "express";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import Note from "../models/notes.js";
 import { authMiddleware } from "../middleware/auth.js";
 
@@ -93,6 +94,46 @@ router.delete("/:id", async (req, res) => {
     res.json({
       success: true,
       message: "Note deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+// note routes
+
+// SUMMARIZE NOTE WITH AI
+router.post("/:id/summarize", async (req, res) => {
+  try {
+    const note = await Note.findOne({
+      _id: req.params.id,
+      userId: req.user.id,
+    });
+
+    if (!note) {
+      return res.status(404).json({
+        success: false,
+        message: "Note not found",
+      });
+    }
+
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const result = await model.generateContent(
+      `Summarize this note in 2-3 sentences:\n\nTitle: ${note.title}\n\n${note.description}`
+    );
+
+    const summary = result.response.text();
+
+    note.summary = summary;
+    await note.save();
+
+    res.json({
+      success: true,
+      summary,
     });
   } catch (error) {
     res.status(500).json({
