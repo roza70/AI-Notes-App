@@ -101,5 +101,6 @@ router.delete("/:id", async (req, res) => {
     });
   }
 });
+// note routes
 
 export default router;
