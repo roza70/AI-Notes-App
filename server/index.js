@@ -12,6 +12,8 @@ import {
   errorHandler,
 } from "./middleware/middleware.js";
 
+console.log("OpenAI Key loaded:", process.env.OPENAI_API_KEY ? "YES ✅" : "NO ❌");
+
 const app = express();
 
 // =====================
