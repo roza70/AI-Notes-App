@@ -1,59 +1,37 @@
 import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import Navbar from '../components/navbar.jsx'
-import { apiFetch } from '../utils/api.js'
-import { useToast } from '../context/ToastContext.jsx'
+import axios from 'axios'
 
 const Signup = () => {
-  const navigate = useNavigate()
-  const { showToast } = useToast()
-  const [name, setName] = React.useState('')
-  const [email, setEmail] = React.useState('')
-  const [password, setPassword] = React.useState('')
-  const [error, setError] = React.useState('')
-  const [loading, setLoading] = React.useState(false)
+    const [name, setName] = React.useState('')
+    const [email, setEmail] = React.useState('')
+    const [password, setPassword] = React.useState('')
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        // Handle form submission logic here
+        try{
+            const response = await axios.post(
+                'http://localhost:5000/api/auth/register', 
+                {
+                    name,
+                    email,
+                    password
+                }
+            );
+            console.log(response)
+            // const data = await response.data
+            // Handle successful signup logic here
+        } catch (error) {
+            // Handle signup error logic here
+            console.log(error)
+        }
+    };
 
-    try {
-      const res = await apiFetch('/api/auth/register', {
-        method: 'POST',
-        body: JSON.stringify({ name, email, password }),
-      })
-      const data = await res.json()
-
-      if (!res.ok) {
-        const errMsg = data.message || 'Registration failed';
-        setError(errMsg)
-        showToast(errMsg, 'error')
-        return
-      }
-
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
-      showToast('Registration successful! Welcome.', 'success')
-      navigate('/home', { replace: true })
-    } catch {
-      setError('Could not reach the server. Is the backend running?')
-      showToast('Could not reach the server. Is the backend running?', 'error')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <Navbar />
-      <div className="flex justify-center items-center py-12 px-4">
+    return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="border shadow p-6 w-80 bg-white">
         <h2 className="text-xl font-bold mb-4">Sign Up</h2>
-        {error && (
-          <p className="mb-3 text-sm text-red-600 bg-red-50 p-2 rounded">{error}</p>
-        )}
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}> 
           <div className="mb-4">
             <label className="block text-gray-700">Name</label>
             <input
@@ -63,7 +41,6 @@ const Signup = () => {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              disabled={loading}
             />
           </div>
           <div className="mb-4">
@@ -78,7 +55,6 @@ const Signup = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter Email"
               required
-              disabled={loading}
             />
           </div>
           <div className="mb-4">
@@ -92,27 +68,24 @@ const Signup = () => {
               placeholder="Enter password"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
+              onChange={(e) => setPassword(e.target.value)} 
             />
           </div>
           <div className="mb-4">
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition duration-300 disabled:opacity-60"
+              className="w-full bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition duration-300"
             >
-              {loading ? 'Signing up...' : 'Signup'}
+              Signup
             </button>
             <p className="text-center mt-4">
               Already have an account?{' '}
-              <Link to="/login" className="text-teal-600 hover:underline">
+              <a href="/login" className="text-teal-600 hover:underline">
                 Login
-              </Link>
+              </a>
             </p>
           </div>
         </form>
-      </div>
       </div>
     </div>
   )

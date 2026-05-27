@@ -1,6 +1,6 @@
 // src/utils/api.js
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://ai-notes-app-5bb7.onrender.com";
 
 export const apiFetch = async (endpoint, options = {}) => {
   try {
